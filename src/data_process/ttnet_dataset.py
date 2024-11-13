@@ -51,7 +51,11 @@ class TTNet_Dataset(Dataset):
         img_path_list, org_ball_pos_xy, target_events, seg_path = self.events_infor[index]
         # Load segmentation
         seg_img = load_raw_img(seg_path)
-        self.jpeg_reader = TurboJPEG()  # improve it later (Only initialize it once)
+                # 指定 TurboJPEG DLL 的路径
+        turbo_jpeg_path = "C:/libjpeg-turbo64/bin/turbojpeg.dll"  # 根据实际安装路径修改
+        self.jpeg_reader = TurboJPEG(lib_path=turbo_jpeg_path)
+
+        # self.jpeg_reader = TurboJPEG()  # improve it later (Only initialize it once)
         # Load a sequence of images (-4, 4), resize images before stacking them together
         # Use TurboJPEG to speed up the loading images' phase
         resized_imgs = []

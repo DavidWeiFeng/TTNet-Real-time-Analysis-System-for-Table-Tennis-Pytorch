@@ -89,6 +89,17 @@ def get_events_infor(game_list, configs, dataset_type):
     for game_name in game_list:
         ball_annos_path = os.path.join(annos_dir, game_name, 'ball_markup.json')
         events_annos_path = os.path.join(annos_dir, game_name, 'events_markup.json')
+        # 转换为绝对路径
+        abs_ball_path = os.path.abspath(ball_annos_path)
+        
+        print(f"\n检查游戏 {game_name}:")
+        print(f"相对路径: {ball_annos_path}")
+        print(f"绝对路径: {abs_ball_path}")
+        print(f"父目录是否存在: {os.path.exists(os.path.dirname(abs_ball_path))}")
+        if not os.path.exists(ball_annos_path):
+            print(f"找不到文件: {ball_annos_path}")
+            print(f"当前工作目录: {os.getcwd()}")
+            raise FileNotFoundError(f"数据集文件不存在: {ball_annos_path}")
         # Load ball annotations
         json_ball = open(ball_annos_path)
         ball_annos = json.load(json_ball)
@@ -116,7 +127,7 @@ def get_events_infor(game_list, configs, dataset_type):
                     print('smooth_idx: {} - no ball position for the frame idx {}'.format(smooth_idx, last_f_idx))
                     continue
                 ball_position_xy = ball_annos['{}'.format(last_f_idx)]
-                ball_position_xy = np.array([ball_position_xy['x'], ball_position_xy['y']], dtype=np.int)
+                ball_position_xy = np.array([ball_position_xy['x'], ball_position_xy['y']], dtype=np.int32)
                 # Ignore the event without ball information
                 if (ball_position_xy[0] < 0) or (ball_position_xy[1] < 0):
                     continue

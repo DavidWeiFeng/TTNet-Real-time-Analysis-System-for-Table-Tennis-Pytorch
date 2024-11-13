@@ -130,32 +130,12 @@ def resume_model(resume_path, arch, gpu_idx):
 
 
 def make_data_parallel(model, configs):
-    if configs.distributed:
-        # For multiprocessing distributed, DistributedDataParallel constructor
-        # should always set the single device scope, otherwise,
-        # DistributedDataParallel will use all available devices.
-        if configs.gpu_idx is not None:
-            torch.cuda.set_device(configs.gpu_idx)
-            model.cuda(configs.gpu_idx)
-            # When using a single GPU per process and per
-            # DistributedDataParallel, we need to divide the batch size
-            # ourselves based on the total number of GPUs we have
-            configs.batch_size = int(configs.batch_size / configs.ngpus_per_node)
-            configs.num_workers = int((configs.num_workers + configs.ngpus_per_node - 1) / configs.ngpus_per_node)
-            model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[configs.gpu_idx],
-                                                              find_unused_parameters=True)
-        else:
-            model.cuda()
-            # DistributedDataParallel will divide and allocate batch_size to all
-            # available GPUs if device_ids are not set
-            model = torch.nn.parallel.DistributedDataParallel(model)
-    elif configs.gpu_idx is not None:
-        torch.cuda.set_device(configs.gpu_idx)
-        model = model.cuda(configs.gpu_idx)
-    else:
-        # DataParallel will divide and allocate batch_size to all available GPUs
-        model = torch.nn.DataParallel(model).cuda()
+    
 
+    if torch.cuda.is_available() and not configs.no_cuda:
+        model = torch.nn.DataParallel(model).cuda()
+    else:
+        model = torch.nn.DataParallel(model)
     return model
 
 
